@@ -29,7 +29,7 @@ class KCO_Subscription {
 		add_action( 'kco_wc_payment_complete', array( $this, 'set_recurring_token_for_order' ), 10, 2 );
 		add_action( 'woocommerce_scheduled_subscription_payment_kco', array( $this, 'trigger_scheduled_payment' ), 10, 2 );
 		add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'show_recurring_token' ) );
-		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'save_kco_recurring_token_update' ), 45, 2 );
+		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'save_kco_recurring_token_update' ), 45, 1 );
 
 		add_action( 'wc_klarna_push_cb', array( $this, 'handle_push_cb_for_payment_method_change' ) );
 		add_action( 'init', array( $this, 'display_thankyou_message_for_payment_method_change' ) );
@@ -41,15 +41,21 @@ class KCO_Subscription {
 	}
 
 	/**
-	 * Checks the cart if it has a subscription product in it.
+	 * Check if a cart contains a subscription.
 	 *
 	 * @return bool
 	 */
-	public function check_if_subscription() {
-		if ( class_exists( 'WC_Subscriptions_Cart' ) && ( WC_Subscriptions_Cart::cart_contains_subscription() || wcs_cart_contains_renewal() ) ) {
-			return true;
+	public static function cart_has_subscription() {
+		if ( ! is_checkout() ) {
+			return false;
 		}
-		return false;
+
+		return ( class_exists( 'WC_Subscriptions_Cart' ) && WC_Subscriptions_Cart::cart_contains_subscription() ) ||
+			( function_exists( 'wcs_cart_contains_renewal' ) && wcs_cart_contains_renewal() ) ||
+			( function_exists( 'wcs_cart_contains_failed_renewal_order_payment' ) && wcs_cart_contains_failed_renewal_order_payment() ) ||
+			( function_exists( 'wcs_cart_contains_resubscribe' ) && wcs_cart_contains_resubscribe() ) ||
+			( function_exists( 'wcs_cart_contains_early_renewal' ) && wcs_cart_contains_early_renewal() ) ||
+			( function_exists( 'wcs_cart_contains_switches' ) && wcs_cart_contains_switches() );
 	}
 
 	/**
@@ -74,7 +80,7 @@ class KCO_Subscription {
 	 * @return array
 	 */
 	public function create_extra_merchant_data( $request_args ) {
-		if ( class_exists( 'WC_Subscriptions_Cart' ) && WC_Subscriptions_Cart::cart_contains_subscription() ) {
+		if ( self::cart_has_subscription() ) {
 			$subscription_product_id = false;
 			if ( ! empty( WC()->cart->cart_contents ) ) {
 				foreach ( WC()->cart->cart_contents as $cart_item ) {
@@ -135,7 +141,7 @@ class KCO_Subscription {
 	public function set_recurring( $request_args ) {
 
 		// Check if we have a subscription product. If yes set recurring field.
-		if ( $this->check_if_subscription() || $this->is_kco_subs_change_payment_method() ) {
+		if ( self::cart_has_subscription() || $this->is_kco_subs_change_payment_method() ) {
 			$request_args['recurring'] = true;
 		}
 
@@ -240,7 +246,7 @@ class KCO_Subscription {
 		$wc_order        = wc_get_order( $order_id );
 		$recurring_order = $wc_order->get_meta( '_kco_recurring_order', true );
 
-		if ( 'yes' === $recurring_order || class_exists( 'WC_Subscription' ) && ( wcs_order_contains_subscription( $wc_order, array( 'parent', 'renewal', 'resubscribe', 'switch' ) ) || wcs_is_subscription( $wc_order ) ) ) {
+		if ( 'yes' === $recurring_order || ( class_exists( 'WC_Subscription' ) && ( wcs_order_contains_subscription( $wc_order, array( 'parent', 'renewal', 'resubscribe', 'switch' ) ) || wcs_is_subscription( $wc_order ) ) ) ) {
 			$subscriptions   = wcs_get_subscriptions_for_order( $order_id, array( 'order_type' => 'any' ) );
 			$klarna_order_id = $wc_order->get_transaction_id();
 			$klarna_order    = KCO_WC()->api->get_klarna_order( $klarna_order_id );
@@ -343,7 +349,7 @@ class KCO_Subscription {
 		$create_order_response = KCO_WC()->api->create_recurring_order( $order_id, $recurring_token );
 		if ( ! is_wp_error( $create_order_response ) ) {
 			$klarna_order_id = $create_order_response['order_id'];
-      
+
 			// Translators: Kustom order id.
 			$renewal_order->add_order_note( sprintf( __( 'Subscription payment made with Kustom. Kustom order id: %s', 'klarna-checkout-for-woocommerce' ), $klarna_order_id ) );
 			foreach ( $subscriptions as $subscription ) {
@@ -372,13 +378,23 @@ class KCO_Subscription {
 		$parent_order = $subscription->get_parent();
 
 		// The environment used for the parent order.
-		$env = $parent_order->get_meta( '_wc_klarna_environment', true );
+		$env = $parent_order->get_meta( '_wc_klarna_environment' );
 		if ( empty( $env ) ) {
-			$settings = get_option( 'woocommerce_kco_settings', array() );
-			$env      = wc_string_to_bool( $settings['testmode'] ) ? 'test' : 'live';
+			$settings = get_option( 'woocommerce_kco_settings' );
+			$env      = wc_string_to_bool( $settings['testmode'] ?? 'yes' ) ? 'test' : 'live';
+		}
+		$renewal_order->update_meta_data( '_wc_klarna_environment', $env );
+
+		$kss_data = $parent_order->get_meta( '_kco_kss_data' );
+		if ( ! empty( $kss_data ) ) {
+			$renewal_order->update_meta_data( '_kco_kss_data', $kss_data );
 		}
 
-		$renewal_order->update_meta_data( '_wc_klarna_environment', $env );
+		$kss_reference = $parent_order->get_meta( '_kco_kss_reference' );
+		if ( ! empty( $kss_reference ) ) {
+			$renewal_order->update_meta_data( '_kco_kss_reference', $kss_reference );
+		}
+
 		$renewal_order->save_meta_data();
 
 		return $renewal_order;
@@ -425,11 +441,10 @@ class KCO_Subscription {
 	/**
 	 * Saves the recurring token.
 	 *
-	 * @param int     $post_id WordPress post id.
-	 * @param WP_Post $post The WordPress post.
+	 * @param int $post_id WordPress post id.
 	 * @return void
 	 */
-	public function save_kco_recurring_token_update( $post_id, $post ) {
+	public function save_kco_recurring_token_update( $post_id ) {
 		$klarna_recurring_token = filter_input( INPUT_POST, '_kco_recurring_token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$order                  = wc_get_order( $post_id );
 		if ( 'shop_subscription' === $order->get_type() && $order->get_meta( '_kco_recurring_token', true ) ) {
@@ -557,10 +572,9 @@ class KCO_Subscription {
 	 * @return array
 	 */
 	public function extend_allowed_domains_list( $hosts ) {
-		$hosts[] = 'pay.playground.klarna.co';
-		$hosts[] = 'pay.klarna.co';
+		$hosts[] = 'pay.playground.klarna.com';
+		$hosts[] = 'pay.klarna.com';
 		return $hosts;
 	}
 }
 new KCO_Subscription();
-

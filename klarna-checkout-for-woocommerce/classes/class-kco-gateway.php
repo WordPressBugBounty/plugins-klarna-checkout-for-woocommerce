@@ -5,6 +5,12 @@
  * @package Klarna_Checkout/Classes
  */
 
+use Krokedil\KustomCheckout\CheckoutFlow\CheckoutFlow;
+use Krokedil\KustomCheckout\Utility\BlocksUtility;
+use Krokedil\KustomCheckout\Utility\SettingsUtility;
+use KrokedilKlarnaCheckoutDeps\Krokedil\SettingsPage\SettingsPage;
+use KrokedilKlarnaCheckoutDeps\Krokedil\SettingsPage\Gateway;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,8 +23,23 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 	 */
 	class KCO_Gateway extends WC_Payment_Gateway {
 
-		public $testmode                   = false;
-		public $logging                    = false;
+		/**
+		 * Whether the gateway is enabled or not.
+		 *
+		 * @var bool $enabled
+		 */
+		public $testmode = false;
+		/**
+		 * Whether logging is enabled or not.
+		 *
+		 * @var bool $logging
+		 */
+		public $logging = false;
+		/**
+		 * Whether to show shipping methods in the iframe or not.
+		 *
+		 * @var bool $shipping_methods_in_iframe
+		 */
 		public $shipping_methods_in_iframe = false;
 
 		/**
@@ -86,7 +107,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			add_filter( 'kco_wc_api_request_args', array( $this, 'maybe_remove_kco_epm' ), 9999 );
 
-			// Prevent the Woo validation from proceeding if there is a discrepancy between Woo and Kustom
+			// Prevent the Woo validation from proceeding if there is a discrepancy between Woo and Kustom.
 			add_action( 'woocommerce_after_checkout_validation', array( $this, 'validate_checkout' ), 10, 2 );
 		}
 
@@ -98,7 +119,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return void
 		 */
 		public function validate_checkout( $data, $errors ) {
-			if ( 'kco' !== WC()->session->get( 'chosen_payment_method' ) ) {
+			if ( 'kco' !== WC()->session->get( 'chosen_payment_method' ) || SettingsUtility::get_setting( 'checkout_flow', 'embedded' ) === 'redirect' ) {
 				return;
 			}
 
@@ -130,7 +151,6 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				'address_1'  => 'street_address',
 				'address_2'  => 'street_address2',
 				'city'       => 'city',
-				// 'state'      => 'region',
 				'postcode'   => 'postal_code',
 				'country'    => 'country',
 			);
@@ -174,8 +194,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					$billing_address[ $billing_field ]               = strtolower( preg_replace( '/\s+/', '', $billing_address[ $billing_field ] ) );
 					$klarna_order['billing_address'][ $klarna_name ] = strtolower( preg_replace( '/\s+/', '', $klarna_order['billing_address'][ $klarna_name ] ) );
 
-					if ( $billing_address[ $billing_field ] !== ( $klarna_order['billing_address'][ $klarna_name ] ?? '' ) ) {
-						$errors->add( $billing_field, __( 'Billing ' . str_replace( '_', ' ', $wc_name ) . ' does not match Kustom order.', 'klarna-checkout-for-woocommerce' ) );
+					if ( ( $klarna_order['billing_address'][ $klarna_name ] ?? '' ) !== $billing_address[ $billing_field ] ) {
+						$field_name = str_replace( '_', ' ', $wc_name );
+						// translators: %s is the field name.
+						$errors->add( $billing_field, sprintf( __( 'Billing %s does not match Kustom order.', 'klarna-checkout-for-woocommerce' ), $field_name ) );
 					}
 				}
 
@@ -184,8 +206,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					$shipping_address[ $shipping_field ]              = strtolower( preg_replace( '/\s+/', '', $shipping_address[ $shipping_field ] ) );
 					$klarna_order['shipping_address'][ $klarna_name ] = strtolower( preg_replace( '/\s+/', '', $klarna_order['shipping_address'][ $klarna_name ] ?? '' ) );
 
-					if ( $shipping_address[ $shipping_field ] !== ( $klarna_order['shipping_address'][ $klarna_name ] ?? '' ) ) {
-						$errors->add( $shipping_field, __( 'Shipping ' . str_replace( '_', ' ', $wc_name ) . ' does not match Kustom order.', 'klarna-checkout-for-woocommerce' ) );
+					if ( ( $klarna_order['shipping_address'][ $klarna_name ] ?? '' ) !== $shipping_address[ $shipping_field ] ) {
+						$field_name = str_replace( '_', ' ', $wc_name );
+						// translators: %s is the field name.
+						$errors->add( $shipping_field, sprintf( __( 'Shipping %s does not match Kustom order.', 'klarna-checkout-for-woocommerce' ), $field_name ) );
 					}
 				}
 			}
@@ -211,37 +235,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * @return array
 		 */
 		public function process_payment( $order_id ) {
-			$change_payment_method = filter_input( INPUT_GET, 'change_payment_method', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			// Order-pay purchase (or subscription payment method change)
-			// 1. Redirect to receipt page.
-			// 2. Process the payment by displaying the KCO iframe via woocommerce_receipt_kco hook.
-			if ( ! empty( $change_payment_method ) ) {
-				$klarna_order = KCO_WC()->api->create_klarna_order( $order_id, 'redirect' );
-				if ( is_wp_error( $klarna_order ) ) {
-					wc_add_notice( $klarna_order->get_error_message(), 'error' );
-					return array(
-						'result' => 'error',
-					);
-				}
-				return $this->process_redirect_handler( $order_id, $klarna_order );
-			}
-
-			// Order pay or redirect flow.
-			if ( is_wc_endpoint_url( 'order-pay' ) || 'redirect' === ( $this->settings['checkout_flow'] ?? 'embedded' ) ) {
-				$klarna_order = KCO_WC()->api->create_klarna_order( $order_id, 'redirect' );
-				if ( is_wp_error( $klarna_order ) ) {
-					wc_add_notice( $klarna_order->get_error_message(), 'error' );
-					return array(
-						'result' => 'error',
-					);
-				}
-				return $this->process_redirect_handler( $order_id, $klarna_order );
-			}
-
-			// Regular embedded purchase.
-			// 1. Save Kustom data to the pending order.
-			// 2. Approve process payment sequence to customer can continue/complete payment.
-			return $this->process_embedded_payment_handler( $order_id );
+			return CheckoutFlow::process_payment( $order_id );
 		}
 
 		/**
@@ -259,7 +253,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		}
 
 		/**
-		 * Initialise settings fields.
+		 * Initialize settings fields.
 		 */
 		public function init_form_fields() {
 			$this->form_fields = KCO_Fields::fields();
@@ -281,9 +275,13 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 			}
 
 			// If we have a subscription product in cart and the customer isn't from SE, NO, FI, DE, DK, AT or NL, disable KCO.
-			if ( is_checkout() && class_exists( 'WC_Subscriptions_Cart' ) && WC_Subscriptions_Cart::cart_contains_subscription() ) {
-				$available_recurring_countries = array( 'SE', 'NO', 'FI', 'DK', 'DE', 'AT', 'NL' );
-				$country                       = WC()->customer->get_billing_country();
+			if ( is_checkout() && KCO_Subscription::cart_has_subscription() ) {
+				$available_recurring_countries = apply_filters(
+				// This filter allows you to add or remove countries from the list of countries eligible for subscription purchases.
+					'kco_wc_available_recurring_countries',
+					array( 'SE', 'NO', 'FI', 'DK', 'DE', 'AT', 'NL' )
+				);
+				$country = WC()->customer->get_billing_country();
 				if ( empty( $country ) ) {
 					// If the billing country is not available, the "No location by default" setting is set.
 					// By default, if there is exactly one country the store sells to, it will be used by default.
@@ -310,12 +308,25 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 * Add sidebar to the settings page.
 		 */
 		public function admin_options() {
-			ob_start();
-			parent::admin_options();
-			$parent_options = ob_get_contents();
-			ob_end_clean();
+			$args = $this->get_settings_page_args();
+
+			if ( empty( $args ) ) {
+				ob_start();
+				parent::admin_options();
+				$parent_options = ob_get_contents();
+				ob_end_clean();
+				WC_Klarna_Banners::settings_sidebar( $parent_options );
+			} else {
+				$args['icon']            = KCO_WC_PLUGIN_URL . '/assets/img/kustom_logo_black.png';
+				$gateway_page            = new Gateway( $this, $args );
+				$args['general_content'] = array( $gateway_page, 'output' );
+				$settings_page           = ( SettingsPage::get_instance() )
+				->set_plugin_name( 'Kustom Checkout for WooCommerce' )
+				->register_page( $this->id, $args, $this )
+				->output( $this->id );
+			}
+
 			KCO_Settings_Saved::maybe_show_errors();
-			WC_Klarna_Banners::settings_sidebar( $parent_options );
 		}
 
 		/**
@@ -335,6 +346,11 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 
 			// If the redirect flow is selected, we do not need to load any custom scripts.
 			if ( 'redirect' === ( $this->settings['checkout_flow'] ?? 'embedded' ) ) {
+				return;
+			}
+
+			// If the checkout blocks are enabled in WooCommerce, we should not include these scripts either.
+			if ( BlocksUtility::is_checkout_block_enabled() ) {
 				return;
 			}
 
@@ -516,170 +532,16 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		}
 
 		/**
-		 * Process the payment with information from Kustom and return the result - for regular embedded checkout.
-		 *
-		 * @param  int $order_id WooCommerce order ID.
-		 *
-		 * @return mixed
-		 */
-		public function process_embedded_payment_handler( $order_id ) {
-			// Get the Kustom order ID.
-			$order = wc_get_order( $order_id );
-
-			// For the initial subscription, the Kustom order ID should always exist in the session.
-			// This also applies to (pending) renewal subscription since existing Kustom order ID is no longer valid for the renewal, we must retrieve it from the session, not the order.
-			$is_subscription = function_exists( 'wcs_order_contains_subscription' ) && wcs_order_contains_subscription( $order, array( 'parent', 'resubscribe', 'switch', 'renewal' ) );
-
-			if ( ! empty( $order ) && ! $is_subscription ) {
-				$klarna_order_id = $order->get_meta( '_wc_klarna_order_id', true );
-			}
-			$klarna_order_id = ! empty( $klarna_order_id ) ? $klarna_order_id : WC()->session->get( 'kco_wc_order_id' );
-
-			$klarna_order = KCO_WC()->api->get_klarna_order( $klarna_order_id );
-
-			// ----- Extra Debug Logging Start ----- //
-			try {
-				$shipping_debug_log = array(
-					'kco_order_id'           => $klarna_order_id,
-					'wc_order_shipping'      => $order->get_shipping_method(),
-					'wc_session_shipping'    => WC()->session->get( 'chosen_shipping_methods' ),
-					// selected_shipping_option is only available if shipping is displayed in iframe.
-					'kco_order_shipping'     => $klarna_order['selected_shipping_option'] ?? 'N/A',
-					'kco_shipping_transient' => get_transient( "kss_data_$klarna_order_id" ),
-				);
-				$data               = json_encode( $shipping_debug_log );
-				KCO_Logger::log( "Extra shipping debug: $data" );
-			} catch ( Exception $e ) {
-				KCO_Logger::log( 'Extra shipping debug: Error generating log due to ' . $e->getMessage() );
-			}
-			// ----- Extra Debug Logging End ----- //
-
-			$order_number = $order->get_order_number() ?? $order_id ?? 'N/A';
-
-			if ( ! $klarna_order ) {
-				KCO_Logger::log( "Order {$order_number} ({$klarna_order_id}) associated with [{$order->get_billing_email()}] failed to be processed due to: could not retrieve the Kustom order." );
-				return array(
-					'result' => 'error',
-				);
-			}
-
-			if ( $order_id && $klarna_order ) {
-
-				$this->save_metadata_to_order( $order_id, $klarna_order, 'embedded' );
-
-				// Update the order with new confirmation page url.
-				$klarna_order = KCO_WC()->api->update_klarna_confirmation( $klarna_order_id, $klarna_order, $order_id );
-				$order->save();
-
-				// Let other plugins hook into this sequence.
-				do_action( 'kco_wc_process_payment', $order_id, $klarna_order );
-
-				KCO_Logger::log( "Order {$order_number} ({$klarna_order_id}) associated with [{$order->get_billing_email()}] was successfully processed." );
-				return array(
-					'result' => 'success',
-				);
-			}
-			// Return false if we get here. Something went wrong.
-			KCO_Logger::log( "Order {$order_number} ({$klarna_order_id}) associated with [{$order->get_billing_email()}] failed to be processed due to: missing order_id or klarna_order." );
-			return array(
-				'result' => 'error',
-			);
-		}
-
-		/**
-		 * Process the payment for HPP/redirect checkout flow.
-		 *
-		 * @param int   $order_id The WooCommerce order id.
-		 * @param array $klarna_order The response from payment.
-		 *
-		 * @return array|string[]
-		 */
-		protected function process_redirect_handler( $order_id, $klarna_order ) {
-			$order = wc_get_order( $order_id );
-
-			$this->save_metadata_to_order( $order_id, $klarna_order, 'redirect' );
-
-			// Create a HPP url.
-			$hpp = KCO_WC()->api->create_klarna_hpp_url( $klarna_order['order_id'], $order_id );
-
-			if ( is_wp_error( $hpp ) ) {
-				wc_add_notice( 'Failed to create a HPP session with Kustom', 'error' );
-				KCO_Logger::log( sprintf( 'Failed to create a HPP session with Kustom Order %s|%s (Kustom ID: %s) OK. Redirecting to hosted payment page.', $order_id, $order->get_order_number(), $klarna_order['order_id'] ) );
-				return array(
-					'result' => 'error',
-				);
-			}
-
-			$hpp_redirect = $hpp['redirect_url'];
-			// Save Kustom HPP url & Session ID.
-			$order->update_meta_data( '_wc_klarna_hpp_url', sanitize_text_field( $hpp_redirect ) );
-			$order->update_meta_data( '_wc_klarna_hpp_session_id', sanitize_key( $hpp['session_id'] ) );
-			$order->save();
-
-			KCO_Logger::log( sprintf( 'Processing order %s|%s (Kustom ID: %s) OK. Redirecting to hosted payment page.', $order_id, $order->get_order_number(), $klarna_order['order_id'] ) );
-
-			// All good. Redirect customer to Kustom Hosted payment page.
-			$order->add_order_note( __( 'Customer redirected to Kustom Hosted Payment Page.', 'klarna-checkout-for-woocommerce' ) );
-
-			return array(
-				'result'   => 'success',
-				'redirect' => $hpp_redirect,
-			);
-		}
-
-		/**
-		 * Save metadata to Woo order.
-		 *
-		 * @param int    $order_id The WooCommerce order id.
-		 * @param array  $klarna_order The response from payment.
-		 * @param string $checkout_flow The type of checkout flow used by customer.
-		 *
-		 * @return void.
-		 */
-		public function save_metadata_to_order( $order_id, $klarna_order, $checkout_flow = 'embedded' ) {
-			$order = wc_get_order( $order_id );
-
-			// Set Kustom Checkout flow.
-			$order->update_meta_data( '_wc_klarna_checkout_flow', sanitize_text_field( $checkout_flow ) );
-
-			// Set Kustom order ID.
-			$order->update_meta_data( '_wc_klarna_order_id', sanitize_key( $klarna_order['order_id'] ) );
-
-			// Set recurring order.
-			$kco_recurring_order = isset( $klarna_order['recurring'] ) && true === $klarna_order['recurring'] ? 'yes' : 'no';
-			$order->update_meta_data( '_kco_recurring_order', sanitize_key( $kco_recurring_order ) );
-
-			// Set recurring token if it exists.
-			if ( isset( $klarna_order['recurring_token'] ) ) {
-				$order->update_meta_data( '_kco_recurring_token', sanitize_key( $klarna_order['recurring_token'] ) );
-			}
-
-			$environment = $this->testmode ? 'test' : 'live';
-			$order->update_meta_data( '_wc_klarna_environment', $environment );
-
-			$klarna_country = wc_get_base_location()['country'];
-			$order->update_meta_data( '_wc_klarna_country', $klarna_country );
-
-			if ( isset( $klarna_order['shipping_address']['phone'] ) ) {
-
-				// NOTE: Since we declare support for WC v4+, and WC_Order::set_shipping_phone was only added in 5.6.0, we need to use update_meta_data instead. There is no default shipping email field in WC.
-				if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '5.6.0', '>=' ) ) {
-					$order->set_shipping_phone( sanitize_text_field( $klarna_order['shipping_address']['phone'] ) );
-				} else {
-					$order->update_meta_data( '_shipping_phone', sanitize_text_field( $klarna_order['shipping_address']['phone'] ) );
-				}
-			}
-
-			$order->update_meta_data( '_shipping_email', sanitize_text_field( $klarna_order['shipping_address']['email'] ) );
-			$order->save();
-		}
-
-		/**
 		 * Displays Kustom Checkout thank you iframe and clears Kustom order ID value from WC session.
 		 *
 		 * @param int $order_id WooCommerce order ID.
 		 */
 		public function show_thank_you_snippet( $order_id = null ) {
+			// If the action has already been run, don't try to print the snippet again.
+			if ( did_action( 'woocommerce_thankyou_kco' ) > 1 ) {
+				return;
+			}
+
 			if ( $order_id ) {
 				$order           = wc_get_order( $order_id );
 				$upsell_uuids    = $order->get_meta( '_ppu_upsell_ids', true );
@@ -747,15 +609,15 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		/**
 		 * Add kco-shipping-display body class.
 		 *
-		 * @param array $class Array of classes.
+		 * @param array $classes Array of classes.
 		 *
 		 * @return array
 		 */
-		public function add_body_class( $class ) {
+		public function add_body_class( $classes ) {
 			if ( is_checkout() && 'yes' === $this->shipping_methods_in_iframe ) {
 				// Don't display KCO Shipping Display body classes if we have a cart that doesn't needs payment.
 				if ( null !== WC()->cart && method_exists( WC()->cart, 'needs_payment' ) && ! WC()->cart->needs_payment() ) {
-					return $class;
+					return $classes;
 				}
 
 				$first_gateway = '';
@@ -767,10 +629,10 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					$first_gateway = key( $available_payment_gateways );
 				}
 				if ( 'kco' === $first_gateway ) {
-					$class[] = 'kco-shipping-display';
+					$classes[] = 'kco-shipping-display';
 				}
 			}
-			return $class;
+			return $classes;
 		}
 
 		/**
@@ -786,9 +648,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					?>
 					<p>
 						<strong>
-							<?php esc_html_e( 'Organisation number:', 'klarna-checkout-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Organisation number:', 'klarna-checkout-for-woocommerce' ); ?>
 						</strong>
-						<?php echo esc_html( $org_nr ); ?>
+					<?php echo esc_html( $org_nr ); ?>
 					</p>
 					<?php
 				}
@@ -808,9 +670,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					?>
 					<p>
 						<strong>
-							<?php esc_html_e( 'Reference:', 'klarna-checkout-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Reference:', 'klarna-checkout-for-woocommerce' ); ?>
 						</strong>
-						<?php echo esc_html( $reference ); ?>
+					<?php echo esc_html( $reference ); ?>
 					</p>
 					<?php
 				}
@@ -830,9 +692,9 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 					?>
 					<p>
 						<strong>
-							<?php esc_html_e( 'Reference:', 'klarna-checkout-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Reference:', 'klarna-checkout-for-woocommerce' ); ?>
 						</strong>
-						<?php echo esc_html( $reference ); ?>
+					<?php echo esc_html( $reference ); ?>
 					</p>
 					<?php
 				}
@@ -905,17 +767,99 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 *
 		 * @param int    $order_id The WooCommerce order id.
 		 * @param string $upsell_uuid The unique id for the upsell request.
-		 * @return bool
+		 * @return bool|WP_Error
 		 */
 		public function upsell( $order_id, $upsell_uuid ) {
 			$klarna_upsell_order = KCO_WC()->api->upsell_klarna_order( $order_id, $upsell_uuid );
 
 			if ( is_wp_error( $klarna_upsell_order ) ) {
-				$error = new WP_Error( '401', __( 'Kustom did not accept the new order amount, the order has not been updated' ) );
+				$error = new WP_Error( '401', __( 'Kustom did not accept the new order amount, the order has not been updated', 'klarna-checkout-for-woocommerce' ) );
 				return $error;
 			}
 
 			return true;
+		}
+
+		/**
+		 * Read the settings page arguments from remote or local storage.
+		 * If the args are stored locally, they are fetched from the transient cache.
+		 * If they are not available locally, they are fetched from the remote source and stored in the transient cache.
+		 * If the remote source is not available, the function returns null, and default settings page will be used instead.
+		 *
+		 * @return array|null
+		 */
+		private function get_settings_page_args() {
+			$args = get_transient( 'kustom_checkout_settings_page_config' );
+			if ( ! $args ) {
+				$args = wp_remote_get( 'https://krokedil-settings-page-configs.s3.eu-north-1.amazonaws.com/main/configs/kustom-checkout-for-woocommerce.json' );
+
+				if ( is_wp_error( $args ) ) {
+					KP_Logger::log( 'Failed to fetch Kustom Checkout settings page config from remote source.' );
+					return null;
+				}
+
+				$args = wp_remote_retrieve_body( $args );
+				set_transient( 'kustom_checkout_settings_page_config', $args, 60 * 60 * 24 ); // 24 hours lifetime.
+			}
+
+			return json_decode( $args, true );
+		}
+
+		/**
+		 * Callable function for the general content for the settings page.
+		 *
+		 * @return void
+		 */
+		public function settings_page_content() {
+			KP_Settings_Page::header_html();
+			echo $this->generate_settings_html( $this->get_form_fields(), false ); // phpcs:ignore
+		}
+
+		/**
+		 * Get the full list of form fields, with custom section start and end types.
+		 *
+		 * @return array
+		 */
+		public function get_form_fields() {
+			$form_fields        = $this->form_fields;
+			$parsed_form_fields = array();
+
+			$has_section_end = true;
+			$previous_key    = 'none';
+
+			foreach ( $form_fields as $key => $value ) {
+				$type = isset( $value['type'] ) ? $value['type'] : '';
+				// Replace any title types with the custom type krokedil_section_start.
+				if ( 'title' === $type || 'krokedil_section_start' === $type ) {
+					// If we don't have a section end when we find a new title, add one before it.
+					if ( ! $has_section_end ) {
+						$parsed_form_fields[ 'section_end_' . $previous_key ] = array(
+							'type' => 'krokedil_section_end',
+						);
+					}
+
+					$value['type']   = 'krokedil_section_start';
+					$value['id']     = $key;
+					$has_section_end = false;
+					$previous_key    = $key;
+				} elseif ( 'sectionend' === $type ) { // Replace any sectionend types with the custom type krokedil_section_end.
+					$has_section_end = true;
+					$value['type']   = 'krokedil_section_end';
+				} elseif ( 'krokedil_section_end' === $type ) {
+					$has_section_end = true;
+				}
+
+				$parsed_form_fields[ $key ] = $value;
+			}
+
+			// If we don't have a section end at the end of the form, add one.
+			if ( ! $has_section_end ) {
+				$parsed_form_fields['section_end_final'] = array(
+					'type' => 'krokedil_section_end',
+				);
+			}
+
+			return $parsed_form_fields;
 		}
 	}
 }

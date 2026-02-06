@@ -5,14 +5,14 @@
  * Description: Kustom Checkout payment gateway for WooCommerce.
  * Author: Kustom
  * Author URI: https://klarna.com/
- * Version: 2.14.4
+ * Version: 2.18.0
  * Text Domain: klarna-checkout-for-woocommerce
  * Domain Path: /languages
  *
  * WC requires at least: 5.6.0
- * WC tested up to: 10.1.2
+ * WC tested up to: 10.4.3
  *
- * Copyright (c) 2017-2025 Krokedil
+ * Copyright (c) 2017-2026 Krokedil
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Krokedil\KustomCheckout\Blocks\BlockExtension;
+use KrokedilKlarnaCheckoutDeps\Krokedil\WooCommerce\KrokedilWooCommerce;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -35,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'KCO_WC_VERSION', '2.14.4' );
+define( 'KCO_WC_VERSION', '2.18.0' );
 define( 'KCO_WC_MIN_PHP_VER', '5.6.0' );
 define( 'KCO_WC_MIN_WC_VER', '3.9.0' );
 define( 'KCO_WC_MAIN_FILE', __FILE__ );
@@ -91,11 +94,25 @@ if ( ! class_exists( 'KCO' ) ) {
 		public $logger;
 
 		/**
+		 * Reference to the block extension class.
+		 *
+		 * @var BlockExtension $block_extension
+		 */
+		public $block_extension;
+
+		/**
 		 * Reference to order lines from order class.
 		 *
 		 * @var array $order_lines_from_order
 		 */
 		public $order_lines_from_order;
+
+		/**
+		 * The WooCommerce package from Krokedil.
+		 *
+		 * @var KrokedilWooCommerce
+		 */
+		public $krokedil = null;
 
 		/**
 		 * Returns the *Singleton* instance of this class.
@@ -117,7 +134,7 @@ if ( ! class_exists( 'KCO' ) ) {
 		 * @return void
 		 */
 		private function __clone() {
-			wc_doing_it_wrong( __FUNCTION__, __( 'Nope' ), '1.0' );
+			wc_doing_it_wrong( __FUNCTION__, __( 'Nope', 'klarna-checkout-for-woocommerce' ), '1.0' );
 		}
 
 		/**
@@ -127,7 +144,7 @@ if ( ! class_exists( 'KCO' ) ) {
 		 * @return void
 		 */
 		public function __wakeup() {
-			wc_doing_it_wrong( __FUNCTION__, __( 'Nope' ), '1.0' );
+			wc_doing_it_wrong( __FUNCTION__, __( 'Nope', 'klarna-checkout-for-woocommerce' ), '1.0' );
 		}
 
 		/**
@@ -155,6 +172,9 @@ if ( ! class_exists( 'KCO' ) ) {
 				function () {
 					if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 						\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+
+						// Declare compatibility with cart and checkout blocks. See https://developer.woocommerce.com/2023/11/06/faq-extending-cart-and-checkout-blocks.
+						\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
 					}
 				}
 			);
@@ -204,6 +224,11 @@ if ( ! class_exists( 'KCO' ) ) {
 		 */
 		public function init_gateways() {
 			if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
+				return;
+			}
+
+			// Include the autoloader from composer. If it fails, we'll just return and not load the plugin. But an admin notice will show to the merchant.
+			if ( ! self::init_composer() ) {
 				return;
 			}
 
@@ -262,10 +287,22 @@ if ( ! class_exists( 'KCO' ) ) {
 			$this->merchant_urls = new KCO_Merchant_URLs();
 			$this->logger        = new KCO_Logger();
 			$this->api           = new KCO_API();
+			$this->krokedil      = new KrokedilWooCommerce(
+				array(
+					'slug'         => 'kco',
+					'price_format' => 'minor',
+				)
+			);
 
 			load_plugin_textdomain( 'klarna-checkout-for-woocommerce', false, plugin_basename( __DIR__ ) . '/languages' );
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );
 			add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
+
+			// Load the autoloader.
+			$autoloader_result = self::init_composer();
+			if ( $autoloader_result ) {
+				$this->block_extension = new BlockExtension();
+			}
 		}
 
 		/**
@@ -337,6 +374,56 @@ if ( ! class_exists( 'KCO' ) ) {
 
 			return $output;
 		}
+
+		/**
+		 * Initialize composers autoloader. If it does not exist, bail and show an error.
+		 *
+		 * @return mixed
+		 */
+		private static function init_composer() {
+			$autoloader              = KCO_WC_PLUGIN_PATH . '/vendor/autoload.php';
+			$autoloader_dependencies = KCO_WC_PLUGIN_PATH . '/dependencies/autoload.php';
+
+			if ( ! is_readable( $autoloader ) || ! is_readable( $autoloader_dependencies ) ) {
+				self::missing_autoloader();
+				return false;
+			}
+
+			$autoloader_result              = require $autoloader;
+			$autoloader_dependencies_result = require $autoloader_dependencies;
+
+			if ( ! $autoloader_result || ! $autoloader_dependencies_result ) {
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
+		 * Print error message for missing autoloader.
+		 *
+		 * @return void
+		 */
+		private static function missing_autoloader() {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( // phpcs:ignore
+					esc_html__( 'Your installation of Kustom Checkout for WooCommerce is not complete. If you installed this plugin directly from Github please refer to the README.DEV.md file in the plugin.', 'klarna-checkout-for-woocommerce' )
+				);
+			}
+
+			add_action(
+				'admin_notices',
+				function () {
+					?>
+						<div class="notice notice-error">
+							<p>
+								<?php echo esc_html__( 'Your installation of Kustom Checkout for WooCommerce is not complete. If you installed this plugin directly from Github please refer to the README.DEV.md file in the plugin.', 'klarna-checkout-for-woocommerce' ); ?>
+							</p>
+						</div>
+					<?php
+				}
+			);
+		}
 	}
 	KCO::get_instance();
 }
@@ -348,6 +435,6 @@ if ( ! class_exists( 'KCO' ) ) {
  *
  * @return KCO
  */
-function KCO_WC() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName
+function KCO_WC() { // phpcs:ignore
 	return KCO::get_instance();
 }
