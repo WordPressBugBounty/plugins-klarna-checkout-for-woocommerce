@@ -17,6 +17,8 @@ return array(
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Sidebar' => $vendorDir . '/krokedil/settings-page/src/Traits/Sidebar.php',
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Singleton' => $vendorDir . '/krokedil/settings-page/src/Traits/Singleton.php',
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Subsection' => $vendorDir . '/krokedil/settings-page/src/Traits/Subsection.php',
+    'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\Logger' => $vendorDir . '/krokedil/support/src/Logger.php',
+    'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\SystemReport' => $vendorDir . '/krokedil/support/src/SystemReport.php',
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Base' => $vendorDir . '/krokedil/woocommerce/src/Base.php',
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Cart\\Cart' => $vendorDir . '/krokedil/woocommerce/src/Cart/Cart.php',
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Cart\\CartCustomer' => $vendorDir . '/krokedil/woocommerce/src/Cart/CartCustomer.php',

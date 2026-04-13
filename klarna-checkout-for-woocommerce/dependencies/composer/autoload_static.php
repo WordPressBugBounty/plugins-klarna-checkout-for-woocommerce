@@ -4,12 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite58ddc859fdf625bb6684be217612442
+class ComposerStaticInit01677504b11b22a4dc3e25fa5633d560
 {
     public static $prefixLengthsPsr4 = array (
         'K' =>
         array (
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' => 48,
+            'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\' => 44,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\' => 49,
         ),
     );
@@ -18,6 +19,10 @@ class ComposerStaticInite58ddc859fdf625bb6684be217612442
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' =>
         array (
             0 => __DIR__ . '/..' . '/krokedil/woocommerce/src',
+        ),
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/krokedil/support/src',
         ),
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\' =>
         array (
@@ -37,6 +42,8 @@ class ComposerStaticInite58ddc859fdf625bb6684be217612442
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Sidebar' => __DIR__ . '/..' . '/krokedil/settings-page/src/Traits/Sidebar.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Singleton' => __DIR__ . '/..' . '/krokedil/settings-page/src/Traits/Singleton.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Subsection' => __DIR__ . '/..' . '/krokedil/settings-page/src/Traits/Subsection.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\Logger' => __DIR__ . '/..' . '/krokedil/support/src/Logger.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\SystemReport' => __DIR__ . '/..' . '/krokedil/support/src/SystemReport.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Base' => __DIR__ . '/..' . '/krokedil/woocommerce/src/Base.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Cart\\Cart' => __DIR__ . '/..' . '/krokedil/woocommerce/src/Cart/Cart.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Cart\\CartCustomer' => __DIR__ . '/..' . '/krokedil/woocommerce/src/Cart/CartCustomer.php',
@@ -78,9 +85,9 @@ class ComposerStaticInite58ddc859fdf625bb6684be217612442
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite58ddc859fdf625bb6684be217612442::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite58ddc859fdf625bb6684be217612442::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInite58ddc859fdf625bb6684be217612442::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit01677504b11b22a4dc3e25fa5633d560::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit01677504b11b22a4dc3e25fa5633d560::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit01677504b11b22a4dc3e25fa5633d560::$classMap;
 
         }, null, ClassLoader::class);
     }
