@@ -40,7 +40,6 @@ class ComposerStaticInit81b86fb818253fe99c59612a126d8ff7
         'Krokedil\\KustomCheckout\\CheckoutFlow\\EmbeddedFlow' => __DIR__ . '/../..' . '/src/CheckoutFlow/EmbeddedFlow.php',
         'Krokedil\\KustomCheckout\\CheckoutFlow\\RedirectFlow' => __DIR__ . '/../..' . '/src/CheckoutFlow/RedirectFlow.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\Ajax' => __DIR__ . '/../..' . '/src/OrderManagement/Ajax.php',
-        'Krokedil\\KustomCheckout\\OrderManagement\\Logger' => __DIR__ . '/../..' . '/src/OrderManagement/Logger.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\MetaBox' => __DIR__ . '/../..' . '/src/OrderManagement/MetaBox.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\OrderLines' => __DIR__ . '/../..' . '/src/OrderManagement/OrderLines.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\OrderManagement' => __DIR__ . '/../..' . '/src/OrderManagement/OrderManagement.php',

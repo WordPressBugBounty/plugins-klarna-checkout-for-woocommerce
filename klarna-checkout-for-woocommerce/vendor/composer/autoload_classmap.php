@@ -20,7 +20,6 @@ return array(
     'Krokedil\\KustomCheckout\\CheckoutFlow\\EmbeddedFlow' => $baseDir . '/src/CheckoutFlow/EmbeddedFlow.php',
     'Krokedil\\KustomCheckout\\CheckoutFlow\\RedirectFlow' => $baseDir . '/src/CheckoutFlow/RedirectFlow.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\Ajax' => $baseDir . '/src/OrderManagement/Ajax.php',
-    'Krokedil\\KustomCheckout\\OrderManagement\\Logger' => $baseDir . '/src/OrderManagement/Logger.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\MetaBox' => $baseDir . '/src/OrderManagement/MetaBox.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\OrderLines' => $baseDir . '/src/OrderManagement/OrderLines.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\OrderManagement' => $baseDir . '/src/OrderManagement/OrderManagement.php',

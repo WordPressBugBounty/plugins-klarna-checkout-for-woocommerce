@@ -166,13 +166,13 @@ class SystemReport
     private function is_match($form_field)
     {
         foreach ($this->included_settings as $setting) {
-            if (isset($setting['type']) && $setting['type'] === $form_field['type']) {
+            if (isset($setting['type'], $form_field['type']) && $setting['type'] === $form_field['type']) {
                 return $setting;
             }
-            if (isset($setting['id']) && $setting['id'] === $form_field['id']) {
+            if (isset($setting['id'], $form_field['id']) && $setting['id'] === $form_field['id']) {
                 return $setting;
             }
-            if (isset($setting['class']) && $setting['class'] === $form_field['class']) {
+            if (isset($setting['class'], $form_field['class']) && $setting['class'] === $form_field['class']) {
                 return $setting;
             }
         }
@@ -205,7 +205,7 @@ class SystemReport
         }
         $logs = \json_decode(get_option('krokedil_support_' . $this->id, '[]'), \true);
         $logs[] = array('timestamp' => current_time('mysql'), 'response' => array('code' => $response->get_error_code(), 'message' => $response->get_error_message(), 'extra' => $extra));
-        update_option('krokedil_support_' . $this->id, wp_json_encode($logs));
+        update_option('krokedil_support_' . $this->id, wp_json_encode($logs), \false);
         return $response;
     }
     /**
@@ -222,6 +222,6 @@ class SystemReport
                 unset($reports[$key]);
             }
         }
-        update_option('krokedil_support_' . $this->id, wp_json_encode($reports));
+        update_option('krokedil_support_' . $this->id, wp_json_encode($reports), \false);
     }
 }
