@@ -6,7 +6,9 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' => array($vendorDir . '/krokedil/woocommerce/src'),
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\' => array($vendorDir . '/krokedil/support/src'),
+    'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\' => array($vendorDir . '/krokedil/shipping/src'),
     'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\' => array($vendorDir . '/krokedil/settings-page/src'),
 );

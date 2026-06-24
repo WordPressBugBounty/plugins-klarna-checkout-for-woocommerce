@@ -4,18 +4,24 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitdc3bb960232843bf802f99d1ee605c38
+class ComposerStaticInit436a49ab090b295979368efe582b35be
 {
     public static $prefixLengthsPsr4 = array (
         'K' =>
         array (
+            'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\' => 41,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' => 48,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\' => 44,
+            'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\' => 45,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\' => 49,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' =>
         array (
             0 => __DIR__ . '/..' . '/krokedil/woocommerce/src',
@@ -23,6 +29,10 @@ class ComposerStaticInitdc3bb960232843bf802f99d1ee605c38
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\' =>
         array (
             0 => __DIR__ . '/..' . '/krokedil/support/src',
+        ),
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/krokedil/shipping/src',
         ),
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\' =>
         array (
@@ -42,6 +52,28 @@ class ComposerStaticInitdc3bb960232843bf802f99d1ee605c38
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Sidebar' => __DIR__ . '/..' . '/krokedil/settings-page/src/Traits/Sidebar.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Singleton' => __DIR__ . '/..' . '/krokedil/settings-page/src/Traits/Singleton.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\SettingsPage\\Traits\\Subsection' => __DIR__ . '/..' . '/krokedil/settings-page/src/Traits/Subsection.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\AJAX' => __DIR__ . '/..' . '/krokedil/shipping/src/AJAX.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Admin\\EditOrderPage' => __DIR__ . '/..' . '/krokedil/shipping/src/Admin/EditOrderPage.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Assets' => __DIR__ . '/..' . '/krokedil/shipping/src/Assets.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Calculations' => __DIR__ . '/..' . '/krokedil/shipping/src/Calculations.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Container\\Container' => __DIR__ . '/..' . '/krokedil/shipping/src/Container/Container.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Container\\Exceptions\\ContainerException' => __DIR__ . '/..' . '/krokedil/shipping/src/Container/Exceptions/ContainerException.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Container\\Exceptions\\NotFoundException' => __DIR__ . '/..' . '/krokedil/shipping/src/Container/Exceptions/NotFoundException.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Frontend\\PickupPointSelect' => __DIR__ . '/..' . '/krokedil/shipping/src/Frontend/PickupPointSelect.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Frontend\\ShippingRateOutput' => __DIR__ . '/..' . '/krokedil/shipping/src/Frontend/ShippingRateOutput.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Interfaces\\PickupPointServiceInterface' => __DIR__ . '/..' . '/krokedil/shipping/src/Interfaces/PickupPointServiceInterface.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Interfaces\\ShippingRateServiceInterface' => __DIR__ . '/..' . '/krokedil/shipping/src/Interfaces/ShippingRateServiceInterface.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\PickupPoint\\Address' => __DIR__ . '/..' . '/krokedil/shipping/src/PickupPoint/Address.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\PickupPoint\\Coordinates' => __DIR__ . '/..' . '/krokedil/shipping/src/PickupPoint/Coordinates.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\PickupPoint\\EstimatedTimeOfArrival' => __DIR__ . '/..' . '/krokedil/shipping/src/PickupPoint/EstimatedTimeOfArrival.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\PickupPoint\\OpenHours' => __DIR__ . '/..' . '/krokedil/shipping/src/PickupPoint/OpenHours.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\PickupPoint\\PickupPoint' => __DIR__ . '/..' . '/krokedil/shipping/src/PickupPoint/PickupPoint.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\PickupPoints' => __DIR__ . '/..' . '/krokedil/shipping/src/PickupPoints.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\SessionHandler' => __DIR__ . '/..' . '/krokedil/shipping/src/SessionHandler.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\ShippingRate' => __DIR__ . '/..' . '/krokedil/shipping/src/ShippingRate.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Traits\\ArrayFormat' => __DIR__ . '/..' . '/krokedil/shipping/src/Traits/ArrayFormat.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Traits\\JsonFormat' => __DIR__ . '/..' . '/krokedil/shipping/src/Traits/JsonFormat.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\Traits\\RateData' => __DIR__ . '/..' . '/krokedil/shipping/src/Traits/RateData.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\Logger' => __DIR__ . '/..' . '/krokedil/support/src/Logger.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\SystemReport' => __DIR__ . '/..' . '/krokedil/support/src/SystemReport.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Base' => __DIR__ . '/..' . '/krokedil/woocommerce/src/Base.php',
@@ -80,14 +112,17 @@ class ComposerStaticInitdc3bb960232843bf802f99d1ee605c38
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\StoreApi\\StoreApiLineItem' => __DIR__ . '/..' . '/krokedil/woocommerce/src/StoreApi/StoreApiLineItem.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\StoreApi\\StoreApiLineShipping' => __DIR__ . '/..' . '/krokedil/woocommerce/src/StoreApi/StoreApiLineShipping.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Subscription' => __DIR__ . '/..' . '/krokedil/woocommerce/src/Subscription.php',
+        'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
+        'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
+        'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\NotFoundExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/NotFoundExceptionInterface.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitdc3bb960232843bf802f99d1ee605c38::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitdc3bb960232843bf802f99d1ee605c38::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitdc3bb960232843bf802f99d1ee605c38::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit436a49ab090b295979368efe582b35be::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit436a49ab090b295979368efe582b35be::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit436a49ab090b295979368efe582b35be::$classMap;
 
         }, null, ClassLoader::class);
     }
