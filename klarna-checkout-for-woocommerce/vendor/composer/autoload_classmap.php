@@ -19,6 +19,7 @@ return array(
     'Krokedil\\KustomCheckout\\CheckoutFlow\\EmbeddedBlockFlow' => $baseDir . '/src/CheckoutFlow/EmbeddedBlockFlow.php',
     'Krokedil\\KustomCheckout\\CheckoutFlow\\EmbeddedFlow' => $baseDir . '/src/CheckoutFlow/EmbeddedFlow.php',
     'Krokedil\\KustomCheckout\\CheckoutFlow\\RedirectFlow' => $baseDir . '/src/CheckoutFlow/RedirectFlow.php',
+    'Krokedil\\KustomCheckout\\Migrations\\CredentialsMigration' => $baseDir . '/src/Migrations/CredentialsMigration.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\Ajax' => $baseDir . '/src/OrderManagement/Ajax.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\MetaBox' => $baseDir . '/src/OrderManagement/MetaBox.php',
     'Krokedil\\KustomCheckout\\OrderManagement\\OrderLines' => $baseDir . '/src/OrderManagement/OrderLines.php',
