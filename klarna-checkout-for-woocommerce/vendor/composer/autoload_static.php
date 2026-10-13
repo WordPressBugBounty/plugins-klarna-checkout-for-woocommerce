@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit49a426a4e2cf54c612949154499d29f4
+class ComposerStaticInit89341915114ecb38801017ea969149ed
 {
     public static $prefixLengthsPsr4 = array (
         'K' =>
@@ -44,6 +44,7 @@ class ComposerStaticInit49a426a4e2cf54c612949154499d29f4
         'Krokedil\\KustomCheckout\\Elements\\Settings' => __DIR__ . '/../..' . '/src/Elements/Settings.php',
         'Krokedil\\KustomCheckout\\Elements\\Shortcode' => __DIR__ . '/../..' . '/src/Elements/Shortcode.php',
         'Krokedil\\KustomCheckout\\Elements\\Utility' => __DIR__ . '/../..' . '/src/Elements/Utility.php',
+        'Krokedil\\KustomCheckout\\Logging\\LogMasking' => __DIR__ . '/../..' . '/src/Logging/LogMasking.php',
         'Krokedil\\KustomCheckout\\Migrations\\CredentialsMigration' => __DIR__ . '/../..' . '/src/Migrations/CredentialsMigration.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\Ajax' => __DIR__ . '/../..' . '/src/OrderManagement/Ajax.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\MetaBox' => __DIR__ . '/../..' . '/src/OrderManagement/MetaBox.php',
@@ -64,7 +65,22 @@ class ComposerStaticInit49a426a4e2cf54c612949154499d29f4
         'Krokedil\\KustomCheckout\\OrderManagement\\SellersApp' => __DIR__ . '/../..' . '/src/OrderManagement/SellersApp.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\Settings' => __DIR__ . '/../..' . '/src/OrderManagement/Settings.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\Utility' => __DIR__ . '/../..' . '/src/OrderManagement/Utility.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\API\\ApiRegistry' => __DIR__ . '/../..' . '/src/ShippingAssistant/API/ApiRegistry.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\API\\Controllers\\BaseController' => __DIR__ . '/../..' . '/src/ShippingAssistant/API/Controllers/BaseController.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\API\\Controllers\\ShippingOptionUpdateController' => __DIR__ . '/../..' . '/src/ShippingAssistant/API/Controllers/ShippingOptionUpdateController.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\CartItemAttributes' => __DIR__ . '/../..' . '/src/ShippingAssistant/CartItemAttributes.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\CartPage' => __DIR__ . '/../..' . '/src/ShippingAssistant/CartPage.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\Checkout' => __DIR__ . '/../..' . '/src/ShippingAssistant/Checkout.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\CompareTotals' => __DIR__ . '/../..' . '/src/ShippingAssistant/CompareTotals.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\FreeOrders' => __DIR__ . '/../..' . '/src/ShippingAssistant/FreeOrders.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\MerchantUrls' => __DIR__ . '/../..' . '/src/ShippingAssistant/MerchantUrls.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\RequestModifier' => __DIR__ . '/../..' . '/src/ShippingAssistant/RequestModifier.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\Settings' => __DIR__ . '/../..' . '/src/ShippingAssistant/Settings.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\ShippingAssistant' => __DIR__ . '/../..' . '/src/ShippingAssistant/ShippingAssistant.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\ShippingCostRequiresAddress' => __DIR__ . '/../..' . '/src/ShippingAssistant/ShippingCostRequiresAddress.php',
+        'Krokedil\\KustomCheckout\\ShippingAssistant\\ShippingMethod' => __DIR__ . '/../..' . '/src/ShippingAssistant/ShippingMethod.php',
         'Krokedil\\KustomCheckout\\Utility\\BlocksUtility' => __DIR__ . '/../..' . '/src/Utility/BlocksUtility.php',
+        'Krokedil\\KustomCheckout\\Utility\\ConfirmationUtility' => __DIR__ . '/../..' . '/src/Utility/ConfirmationUtility.php',
         'Krokedil\\KustomCheckout\\Utility\\SettingsUtility' => __DIR__ . '/../..' . '/src/Utility/SettingsUtility.php',
         'Krokedil\\KustomCheckout\\Utility\\SigningKeyUtility' => __DIR__ . '/../..' . '/src/Utility/SigningKeyUtility.php',
     );
@@ -72,9 +88,9 @@ class ComposerStaticInit49a426a4e2cf54c612949154499d29f4
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit49a426a4e2cf54c612949154499d29f4::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit49a426a4e2cf54c612949154499d29f4::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit49a426a4e2cf54c612949154499d29f4::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit89341915114ecb38801017ea969149ed::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit89341915114ecb38801017ea969149ed::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit89341915114ecb38801017ea969149ed::$classMap;
 
         }, null, ClassLoader::class);
     }

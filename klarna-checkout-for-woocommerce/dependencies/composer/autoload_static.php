@@ -4,12 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit436a49ab090b295979368efe582b35be
+class ComposerStaticInite54adb7c33248f480bac51b2f22597b1
 {
     public static $prefixLengthsPsr4 = array (
         'K' =>
         array (
             'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\' => 41,
+            'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\' => 42,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' => 48,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\Support\\' => 44,
             'KrokedilKlarnaCheckoutDeps\\Krokedil\\Shipping\\' => 45,
@@ -21,6 +22,10 @@ class ComposerStaticInit436a49ab090b295979368efe582b35be
         'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/krokedil/wp-api/src',
         ),
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\' =>
         array (
@@ -114,6 +119,11 @@ class ComposerStaticInit436a49ab090b295979368efe582b35be
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\StoreApi\\StoreApiLineItem' => __DIR__ . '/..' . '/krokedil/woocommerce/src/StoreApi/StoreApiLineItem.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\StoreApi\\StoreApiLineShipping' => __DIR__ . '/..' . '/krokedil/woocommerce/src/StoreApi/StoreApiLineShipping.php',
         'KrokedilKlarnaCheckoutDeps\\Krokedil\\WooCommerce\\Subscription' => __DIR__ . '/..' . '/krokedil/woocommerce/src/Subscription.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\FieldMasker' => __DIR__ . '/..' . '/krokedil/wp-api/src/FieldMasker.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\KeyMasker' => __DIR__ . '/..' . '/krokedil/wp-api/src/KeyMasker.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\Logger' => __DIR__ . '/..' . '/krokedil/wp-api/src/Logger.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\Masking' => __DIR__ . '/..' . '/krokedil/wp-api/src/Masking.php',
+        'KrokedilKlarnaCheckoutDeps\\Krokedil\\WpApi\\Request' => __DIR__ . '/..' . '/krokedil/wp-api/src/Request.php',
         'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
         'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
         'KrokedilKlarnaCheckoutDeps\\Psr\\Container\\NotFoundExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/NotFoundExceptionInterface.php',
@@ -122,9 +132,9 @@ class ComposerStaticInit436a49ab090b295979368efe582b35be
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit436a49ab090b295979368efe582b35be::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit436a49ab090b295979368efe582b35be::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit436a49ab090b295979368efe582b35be::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInite54adb7c33248f480bac51b2f22597b1::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInite54adb7c33248f480bac51b2f22597b1::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInite54adb7c33248f480bac51b2f22597b1::$classMap;
 
         }, null, ClassLoader::class);
     }
