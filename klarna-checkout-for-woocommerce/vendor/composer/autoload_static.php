@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit89341915114ecb38801017ea969149ed
+class ComposerStaticInit4bcc1b48a9220a9dbbd00d4b2f2ad4af
 {
     public static $prefixLengthsPsr4 = array (
         'K' =>
@@ -32,6 +32,7 @@ class ComposerStaticInit89341915114ecb38801017ea969149ed
         'Krokedil\\KustomCheckout\\Blocks\\Api\\Registry' => __DIR__ . '/../..' . '/blocks/src/Api/Registry.php',
         'Krokedil\\KustomCheckout\\Blocks\\BlockExtension' => __DIR__ . '/../..' . '/blocks/src/BlockExtension.php',
         'Krokedil\\KustomCheckout\\Blocks\\Checkout\\CheckoutBlock' => __DIR__ . '/../..' . '/blocks/src/Checkout/CheckoutBlock.php',
+        'Krokedil\\KustomCheckout\\Blocks\\Express\\ExpressPaymentMethod' => __DIR__ . '/../..' . '/blocks/src/Express/ExpressPaymentMethod.php',
         'Krokedil\\KustomCheckout\\Blocks\\OrderValidation' => __DIR__ . '/../..' . '/blocks/src/OrderValidation.php',
         'Krokedil\\KustomCheckout\\Blocks\\Overrides' => __DIR__ . '/../..' . '/blocks/src/Overrides.php',
         'Krokedil\\KustomCheckout\\Blocks\\Schema\\AddressSchema' => __DIR__ . '/../..' . '/blocks/src/Schema/AddressSchema.php',
@@ -41,9 +42,19 @@ class ComposerStaticInit89341915114ecb38801017ea969149ed
         'Krokedil\\KustomCheckout\\CheckoutFlow\\RedirectFlow' => __DIR__ . '/../..' . '/src/CheckoutFlow/RedirectFlow.php',
         'Krokedil\\KustomCheckout\\Elements\\Block' => __DIR__ . '/../..' . '/src/Elements/Block.php',
         'Krokedil\\KustomCheckout\\Elements\\Elements' => __DIR__ . '/../..' . '/src/Elements/Elements.php',
+        'Krokedil\\KustomCheckout\\Elements\\KeyValidator' => __DIR__ . '/../..' . '/src/Elements/KeyValidator.php',
         'Krokedil\\KustomCheckout\\Elements\\Settings' => __DIR__ . '/../..' . '/src/Elements/Settings.php',
         'Krokedil\\KustomCheckout\\Elements\\Shortcode' => __DIR__ . '/../..' . '/src/Elements/Shortcode.php',
         'Krokedil\\KustomCheckout\\Elements\\Utility' => __DIR__ . '/../..' . '/src/Elements/Utility.php',
+        'Krokedil\\KustomCheckout\\Express\\API\\ApiRegistry' => __DIR__ . '/../..' . '/src/Express/API/ApiRegistry.php',
+        'Krokedil\\KustomCheckout\\Express\\API\\Controllers\\BaseController' => __DIR__ . '/../..' . '/src/Express/API/Controllers/BaseController.php',
+        'Krokedil\\KustomCheckout\\Express\\API\\Controllers\\CallbackController' => __DIR__ . '/../..' . '/src/Express/API/Controllers/CallbackController.php',
+        'Krokedil\\KustomCheckout\\Express\\API\\Controllers\\OrderController' => __DIR__ . '/../..' . '/src/Express/API/Controllers/OrderController.php',
+        'Krokedil\\KustomCheckout\\Express\\Confirmation' => __DIR__ . '/../..' . '/src/Express/Confirmation.php',
+        'Krokedil\\KustomCheckout\\Express\\Express' => __DIR__ . '/../..' . '/src/Express/Express.php',
+        'Krokedil\\KustomCheckout\\Express\\ExpressSession' => __DIR__ . '/../..' . '/src/Express/ExpressSession.php',
+        'Krokedil\\KustomCheckout\\Express\\OrderCreator' => __DIR__ . '/../..' . '/src/Express/OrderCreator.php',
+        'Krokedil\\KustomCheckout\\Express\\RateLimiter' => __DIR__ . '/../..' . '/src/Express/RateLimiter.php',
         'Krokedil\\KustomCheckout\\Logging\\LogMasking' => __DIR__ . '/../..' . '/src/Logging/LogMasking.php',
         'Krokedil\\KustomCheckout\\Migrations\\CredentialsMigration' => __DIR__ . '/../..' . '/src/Migrations/CredentialsMigration.php',
         'Krokedil\\KustomCheckout\\OrderManagement\\Ajax' => __DIR__ . '/../..' . '/src/OrderManagement/Ajax.php',
@@ -88,9 +99,9 @@ class ComposerStaticInit89341915114ecb38801017ea969149ed
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit89341915114ecb38801017ea969149ed::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit89341915114ecb38801017ea969149ed::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit89341915114ecb38801017ea969149ed::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit4bcc1b48a9220a9dbbd00d4b2f2ad4af::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit4bcc1b48a9220a9dbbd00d4b2f2ad4af::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit4bcc1b48a9220a9dbbd00d4b2f2ad4af::$classMap;
 
         }, null, ClassLoader::class);
     }
